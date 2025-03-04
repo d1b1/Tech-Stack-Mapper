@@ -202,7 +202,7 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
               id="line-width"
               type="range"
               min="1"
-              max="5"
+              max="30"
               step="1"
               value={lineWidth}
               onChange={(e) => setLineWidth(parseInt(e.target.value))}

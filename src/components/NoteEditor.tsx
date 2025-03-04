@@ -79,12 +79,12 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialContent = '', onSave, on
               id="note-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full h-32 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px]"
               placeholder="Enter your note here..."
               style={{
-                fontSize: `${fontSize}px`,
+                fontSize: '16px',
                 color: fontColor,
-                backgroundColor: backgroundColor
+                backgroundColor: 'white'
               }}
               ref={contentRef}
             />

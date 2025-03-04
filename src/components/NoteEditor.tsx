@@ -131,26 +131,26 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialContent = '', onSave, on
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label htmlFor="font-size" className="block text-sm font-medium text-gray-700 mb-1">
-                Font Size
-              </label>
-              <div className="flex items-center">
-                <input
-                  type="range"
-                  id="font-size"
-                  min="10"
-                  max="24"
-                  step="1"
-                  value={fontSize}
-                  onChange={(e) => setFontSize(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="ml-2 text-sm">{fontSize}px</span>
-              </div>
+          <div className="mb-4">
+            <label htmlFor="font-size" className="block text-sm font-medium text-gray-700 mb-1">
+              Font Size
+            </label>
+            <div className="flex items-center">
+              <input
+                type="range"
+                id="font-size"
+                min="10"
+                max="24"
+                step="1"
+                value={fontSize}
+                onChange={(e) => setFontSize(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <span className="ml-2 text-sm">{fontSize}px</span>
             </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label htmlFor="font-color" className="block text-sm font-medium text-gray-700 mb-1">
                 Font Color
@@ -166,21 +166,21 @@ const NoteEditor: React.FC<NoteEditorProps> = ({ initialContent = '', onSave, on
                 <span className="text-xs font-mono">{fontColor}</span>
               </div>
             </div>
-          </div>
 
-          <div className="mb-4">
-            <label htmlFor="bg-color" className="block text-sm font-medium text-gray-700 mb-1">
-              Background Color
-            </label>
-            <div className="flex items-center">
-              <input
-                type="color"
-                id="bg-color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                className="h-8 w-8 border border-gray-300 rounded mr-2"
-              />
-              <span className="text-xs font-mono">{backgroundColor}</span>
+            <div>
+              <label htmlFor="bg-color" className="block text-sm font-medium text-gray-700 mb-1">
+                Background Color
+              </label>
+              <div className="flex items-center">
+                <input
+                  type="color"
+                  id="bg-color"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  className="h-8 w-8 border border-gray-300 rounded mr-2"
+                />
+                <span className="text-xs font-mono">{backgroundColor}</span>
+              </div>
             </div>
           </div>
 

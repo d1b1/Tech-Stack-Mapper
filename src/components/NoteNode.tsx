@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { NodeData } from '../types';
 
@@ -7,16 +7,21 @@ interface NoteNodeProps {
 }
 
 const NoteNode: React.FC<NoteNodeProps> = ({ node }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   // Default values if not specified
   const fontSize = node.fontSize || 14;
   const fontColor = node.fontColor || '#333';
   const backgroundColor = node.backgroundColor || '#fffde7';
-  const borderWidth = node.borderWidth || 0;
-  const borderColor = node.borderColor || '#e6ee9c';
+  const borderWidth = isHovered ? 1 : 0; // Only show border on hover
+  const borderColor = '#e6ee9c';
   const hasDropShadow = node.dropShadow;
 
   return (
-    <Group>
+    <Group
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Drop shadow if enabled */}
       {hasDropShadow && (
         <Rect
@@ -38,7 +43,7 @@ const NoteNode: React.FC<NoteNodeProps> = ({ node }) => {
         width={node.width}
         height={node.height}
         fill={backgroundColor}
-        stroke={borderWidth > 0 ? borderColor : undefined}
+        stroke={isHovered ? borderColor : undefined}
         strokeWidth={borderWidth}
         cornerRadius={5}
         shadowColor={hasDropShadow ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)"}

@@ -13,6 +13,21 @@ import ExportModal from './components/ExportModal';
 import SettingsPanel from './components/SettingsPanel';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import { NodeData, ConnectionData, DiagramData } from './types';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import {
+  setNodes,
+  addNode,
+  updateNode,
+  deleteNode,
+  setConnections,
+  addConnection,
+  updateConnection,
+  deleteConnection,
+  setCanvasSettings,
+  setSelectedNodeId,
+  setSelectedConnectionId,
+  clearAll
+} from './store/diagramSlice';
 
 // Local storage key
 const STORAGE_KEY = 'stack-diagram-data';
@@ -20,10 +35,14 @@ const NOTE_SETTINGS_KEY = 'stack-diagram-note-settings';
 const CONNECTION_SETTINGS_KEY = 'stack-diagram-connection-settings';
 
 function App() {
-  const [nodes, setNodes] = useState<NodeData[]>([]);
-  const [connections, setConnections] = useState<ConnectionData[]>([]);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const {
+    nodes,
+    connections,
+    canvasSettings,
+    selectedNodeId,
+    selectedConnectionId
+  } = useAppSelector(state => state.diagram);
   const [showImageUploader, setShowImageUploader] = useState(false);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [showConnectionModal, setShowConnectionModal] = useState(false);
@@ -39,70 +58,14 @@ function App() {
   const [showConnectionDetailsPanel, setShowConnectionDetailsPanel] = useState(false);
   const [noteEditorSettings, setNoteEditorSettings] = useState({
     fontSize: 14,
-    fontColor: '#333333',
-    backgroundColor: '#fffde7',
+    fontColor: '#000000',
+    backgroundColor: '#ffffff',
     width: 200,
     height: 120
   });
-  const [canvasSettings, setCanvasSettings] = useState({
-    backgroundColor: '#f8fafc'
-  });
+  const [backgroundColor, setBackgroundColor] = useState('#f8fafc');
   
   const stageRef = useRef<any>(null);
-
-  // Load data from localStorage on initial render
-  useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      try {
-        const parsedData: DiagramData = JSON.parse(savedData);
-        if (parsedData.nodes && parsedData.connections) {
-          setNodes(parsedData.nodes);
-          setConnections(parsedData.connections);
-          
-          // Load canvas settings from the same data object
-          if (parsedData.canvasSettings) {
-            setCanvasSettings(parsedData.canvasSettings);
-          }
-          
-          console.log('Loaded diagram data from localStorage');
-        }
-      } catch (error) {
-        console.error('Error loading diagram from localStorage:', error);
-      }
-    }
-    
-    // Load note settings
-    const savedNoteSettings = localStorage.getItem(NOTE_SETTINGS_KEY);
-    if (savedNoteSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedNoteSettings);
-        setNoteEditorSettings(parsedSettings);
-        console.log('Loaded note settings from localStorage');
-      } catch (error) {
-        console.error('Error loading note settings from localStorage:', error);
-      }
-    }
-  }, []);
-
-  // Save data to localStorage whenever nodes, connections, or canvas settings change
-  useEffect(() => {
-    if (nodes.length > 0 || connections.length > 0 || canvasSettings) {
-      const diagramData: DiagramData = {
-        nodes,
-        connections,
-        canvasSettings
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(diagramData));
-      console.log('Saved diagram data to localStorage');
-    }
-  }, [nodes, connections, canvasSettings]);
-  
-  // Save note settings to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(NOTE_SETTINGS_KEY, JSON.stringify(noteEditorSettings));
-    console.log('Saved note settings to localStorage');
-  }, [noteEditorSettings]);
 
   // Show details panel when a node is selected
   useEffect(() => {
@@ -128,11 +91,10 @@ function App() {
 
   // Handle node movement
   const handleNodeMove = (id: string, x: number, y: number) => {
-    setNodes(prevNodes =>
-      prevNodes.map(node =>
-        node.id === id ? { ...node, x, y } : node
-      )
-    );
+    const node = nodes.find(n => n.id === id);
+    if (node) {
+      dispatch(updateNode({ ...node, x, y }));
+    }
   };
 
   // Add a new logo node
@@ -171,11 +133,9 @@ function App() {
         imageUrl,
       };
       
-      setNodes(prevNodes => [...prevNodes, newNode]);
+      dispatch(addNode(newNode));
+      dispatch(setSelectedNodeId(newNode.id));
       setShowImageUploader(false);
-      
-      // Auto-select the newly created node
-      setSelectedNodeId(newNode.id);
     };
     
     img.src = imageUrl;
@@ -197,11 +157,9 @@ function App() {
       borderWidth: 0 // Set default border width to 0
     };
     
-    setNodes(prevNodes => [...prevNodes, newNode]);
+    dispatch(addNode(newNode));
+    dispatch(setSelectedNodeId(newNode.id));
     setShowNoteEditor(false);
-    
-    // Auto-select the newly created node
-    setSelectedNodeId(newNode.id);
   };
 
   // Start connection process
@@ -243,41 +201,31 @@ function App() {
       lineDash
     };
     
-    setConnections(prevConnections => [...prevConnections, newConnection]);
+    dispatch(addConnection(newConnection));
     setShowConnectionModal(false);
   };
 
   // Handle connection selection
   const handleConnectionSelect = (connectionId: string) => {
-    setSelectedNodeId(null); // Deselect any selected node
-    setSelectedConnectionId(connectionId);
+    dispatch(setSelectedNodeId(null)); // Deselect any selected node
+    dispatch(setSelectedConnectionId(connectionId));
   };
 
   // Update connection from details panel
   const handleConnectionUpdate = (updatedConnection: ConnectionData) => {
-    setConnections(prevConnections =>
-      prevConnections.map(connection =>
-        connection.id === updatedConnection.id ? updatedConnection : connection
-      )
-    );
+    dispatch(updateConnection(updatedConnection));
   };
 
   // Update connection label
   const handleConnectionLabelUpdate = (connectionId: string, label: string) => {
-    setConnections(prevConnections =>
-      prevConnections.map(connection =>
-        connection.id === connectionId ? { ...connection, label } : connection
-      )
-    );
+    dispatch(updateConnection({ ...connections.find(c => c.id === connectionId)!, label }));
     setShowConnectionLabelEditor(false);
   };
 
   // Delete connection
   const handleConnectionDelete = (connectionId: string) => {
-    setConnections(prevConnections =>
-      prevConnections.filter(connection => connection.id !== connectionId)
-    );
-    setSelectedConnectionId(null);
+    dispatch(deleteConnection(connectionId));
+    dispatch(setSelectedConnectionId(null));
     setShowConnectionDetailsPanel(false);
   };
 
@@ -291,17 +239,12 @@ function App() {
   // Delete selected node and its connections
   const handleDelete = () => {
     if (selectedNodeId) {
-      // Remove the node
-      setNodes(prevNodes => prevNodes.filter(node => node.id !== selectedNodeId));
+      dispatch(deleteNode(selectedNodeId));
       
       // Remove any connections involving this node
-      setConnections(prevConnections => 
-        prevConnections.filter(
-          conn => conn.from !== selectedNodeId && conn.to !== selectedNodeId
-        )
-      );
+      dispatch(deleteConnection(selectedNodeId));
       
-      setSelectedNodeId(null);
+      dispatch(setSelectedNodeId(null));
       setShowDeleteConfirmation(false);
     }
   };
@@ -313,11 +256,7 @@ function App() {
 
   // Clear all data from localStorage and reset the diagram
   const handleClearAll = () => {
-    setNodes([]);
-    setConnections([]);
-    localStorage.removeItem(STORAGE_KEY);
-    setSelectedNodeId(null);
-    setSelectedConnectionId(null);
+    dispatch(clearAll());
     setShowClearAllConfirmation(false);
   };
 
@@ -384,10 +323,10 @@ function App() {
 
   // Save settings
   const handleSaveSettings = (backgroundColor: string) => {
-    setCanvasSettings({
+    dispatch(setCanvasSettings({
       ...canvasSettings,
       backgroundColor
-    });
+    }));
   };
 
   // Load diagram from JSON file
@@ -400,12 +339,12 @@ function App() {
         const data: DiagramData = JSON.parse(result);
         
         if (data.nodes && data.connections) {
-          setNodes(data.nodes);
-          setConnections(data.connections);
+          dispatch(setNodes(data.nodes));
+          dispatch(setConnections(data.connections));
           
           // Load canvas settings if available
           if (data.canvasSettings) {
-            setCanvasSettings(data.canvasSettings);
+            dispatch(setCanvasSettings(data.canvasSettings));
           }
         }
       } catch (error) {
@@ -421,10 +360,10 @@ function App() {
   const handleNodeDoubleClick = (nodeId: string) => {
     const node = nodes.find(n => n.id === nodeId);
     if (node && node.type === 'logo') {
-      setSelectedNodeId(nodeId);
+      dispatch(setSelectedNodeId(nodeId));
       setShowLogoEditor(true);
     } else if (node && node.type === 'note') {
-      setSelectedNodeId(nodeId);
+      dispatch(setSelectedNodeId(nodeId));
       setShowNoteEditor(true);
       
       // Update note editor settings based on the selected note
@@ -442,11 +381,7 @@ function App() {
 
   // Update logo details
   const handleLogoUpdate = (id: string, content: string, description: string) => {
-    setNodes(prevNodes =>
-      prevNodes.map(node =>
-        node.id === id ? { ...node, content, description } : node
-      )
-    );
+    dispatch(updateNode({ ...nodes.find(n => n.id === id)!, content, description }));
     setShowLogoEditor(false);
   };
 
@@ -455,31 +390,23 @@ function App() {
     if (selectedNodeId) {
       const selectedNode = nodes.find(n => n.id === selectedNodeId);
       
-      setNodes(prevNodes =>
-        prevNodes.map(node =>
-          node.id === selectedNodeId ? { 
-            ...node, 
-            content,
-            width: noteEditorSettings.width,
-            height: noteEditorSettings.height,
-            fontSize: noteEditorSettings.fontSize,
-            fontColor: noteEditorSettings.fontColor,
-            backgroundColor: noteEditorSettings.backgroundColor,
-            borderWidth: 0 // Ensure border is removed
-          } : node
-        )
-      );
+      dispatch(updateNode({ 
+        ...selectedNode!, 
+        content,
+        width: noteEditorSettings.width,
+        height: noteEditorSettings.height,
+        fontSize: noteEditorSettings.fontSize,
+        fontColor: noteEditorSettings.fontColor,
+        backgroundColor: noteEditorSettings.backgroundColor,
+        borderWidth: 0 // Ensure border is removed
+      }));
       setShowNoteEditor(false);
     }
   };
 
   // Update node from details panel
   const handleNodeUpdateFromPanel = (updatedNode: NodeData) => {
-    setNodes(prevNodes =>
-      prevNodes.map(node =>
-        node.id === updatedNode.id ? updatedNode : node
-      )
-    );
+    dispatch(updateNode(updatedNode));
     
     // If it's a note, update the note editor settings for consistency
     if (updatedNode.type === 'note') {
@@ -495,23 +422,23 @@ function App() {
 
   // Close details panel
   const handleCloseDetailsPanel = () => {
-    setSelectedNodeId(null);
+    dispatch(setSelectedNodeId(null));
     setShowDetailsPanel(false);
   };
 
   // Close connection details panel
   const handleCloseConnectionDetailsPanel = () => {
-    setSelectedConnectionId(null);
+    dispatch(setSelectedConnectionId(null));
     setShowConnectionDetailsPanel(false);
   };
 
   // Handle canvas click - only deselect if clicking on empty space
   const handleCanvasClick = (id: string | null, isEmptySpace: boolean) => {
     if (isEmptySpace) {
-      setSelectedNodeId(null);
-      setSelectedConnectionId(null);
+      dispatch(setSelectedNodeId(null));
+      dispatch(setSelectedConnectionId(null));
     } else if (id) {
-      setSelectedNodeId(id);
+      dispatch(setSelectedNodeId(id));
     }
   };
 
@@ -560,13 +487,11 @@ function App() {
     const offsetY = canvasHeight / 2 - centerY;
     
     // Apply the offset to all nodes
-    setNodes(prevNodes => 
-      prevNodes.map(node => ({
-        ...node,
-        x: node.x + offsetX,
-        y: node.y + offsetY
-      }))
-    );
+    dispatch(setNodes(nodes.map(node => ({
+      ...node,
+      x: node.x + offsetX,
+      y: node.y + offsetY
+    }))))
   };
 
   // Get the selected node
@@ -666,7 +591,7 @@ function App() {
           onDelete={handleConnectionDelete}
           onCancel={() => {
             setShowConnectionLabelEditor(false);
-            setSelectedConnectionId(null);
+            dispatch(setSelectedConnectionId(null));
           }}
         />
       )}

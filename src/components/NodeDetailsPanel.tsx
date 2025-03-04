@@ -61,12 +61,12 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
 
   // Auto-focus the first input when node changes
   useEffect(() => {
-    if (node && node.type === 'logo' && nameInputRef.current) {
+    if (node && node.type === 'logo' && nameInputRef.current && !document.activeElement?.contains(descriptionInputRef.current)) {
       nameInputRef.current.focus();
     } else if (node && node.type === 'note' && noteInputRef.current) {
       noteInputRef.current.focus();
     }
-  }, [node]);
+  }, [node?.id]); // Only trigger when the node ID changes, not on every node change
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -259,7 +259,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
                     src={node.imageUrl} 
                     alt={node.content} 
                     className="object-contain"
-                    style={{ maxHeight: '200px' }}
+                    style={{ maxHeight: '120px' }}
                   />
                 </div>
               )}
@@ -268,8 +268,8 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
           
           {/* Logo name - always editable */}
           <div>
-            <label htmlFor="logo-name" className="block text-sm font-medium text-gray-500 mb-1">
-              Name
+            <label htmlFor="logo-name" className="block text-sm font-bold text-gray-700 mb-1">
+              Title
             </label>
             <input
               id="logo-name"
@@ -301,73 +301,84 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-medium text-gray-500 mb-3">Styling Options</h3>
             
-            {/* Image size slider */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="image-size" className="text-xs text-gray-500">Image Size</label>
-                <span className="text-xs font-medium">{imageSize}px</span>
+            {/* Image size and Border width in one row */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Image size slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="image-size" className="text-xs text-gray-500">Image Size</label>
+                  <span className="text-xs font-medium">{imageSize}px</span>
+                </div>
+                <input
+                  id="image-size"
+                  type="range"
+                  min="50"
+                  max="1000"
+                  step="10"
+                  value={imageSize}
+                  onChange={handleSizeChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
-              <input
-                id="image-size"
-                type="range"
-                min="50"
-                max="1000"
-                step="10"
-                value={imageSize}
-                onChange={handleSizeChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            
-            {/* Drop shadow toggle */}
-            <div className="flex items-center mb-3">
-              <input
-                id="drop-shadow"
-                type="checkbox"
-                checked={dropShadow}
-                onChange={handleDropShadowChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="drop-shadow" className="ml-2 text-sm text-gray-700">
-                Drop Shadow
-              </label>
-            </div>
-            
-            {/* Border width */}
-            <div className="mb-3">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="border-width" className="text-xs text-gray-500">Border Width</label>
-                <span className="text-xs font-medium">{borderWidth}px</span>
+
+              {/* Border width slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="border-width" className="text-xs text-gray-500">Border Width</label>
+                  <span className="text-xs font-medium">{borderWidth}px</span>
+                </div>
+                <input
+                  id="border-width"
+                  type="range"
+                  min="0"
+                  max="10"
+                  value={borderWidth}
+                  onChange={handleBorderWidthChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
-              <input
-                id="border-width"
-                type="range"
-                min="0"
-                max="10"
-                value={borderWidth}
-                onChange={handleBorderWidthChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
             </div>
             
-            {/* Border color - only show if border width > 0 */}
-            {borderWidth > 0 && (
-              <div className="mb-3">
-                <label htmlFor="border-color" className="block text-xs text-gray-500 mb-1">
-                  Border Color
+            {/* Drop shadow and Border color in one row */}
+            <div className="grid grid-cols-2 gap-4 mb-3">
+              {/* Drop shadow toggle */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  Drop Shadow
                 </label>
-                <div className="flex items-center">
+                <div className="flex items-center h-8">
                   <input
-                    id="border-color"
-                    type="color"
-                    value={borderColor}
-                    onChange={handleBorderColorChange}
-                    className="h-8 w-8 border border-gray-300 rounded mr-2"
+                    id="drop-shadow"
+                    type="checkbox"
+                    checked={dropShadow}
+                    onChange={handleDropShadowChange}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="text-xs font-mono">{borderColor}</span>
+                  <label htmlFor="drop-shadow" className="ml-2 text-sm text-gray-700">
+                    Enable
+                  </label>
                 </div>
               </div>
-            )}
+              
+              {/* Border color - only show if border width > 0 */}
+              {borderWidth > 0 && (
+                <div>
+                  <label htmlFor="border-color" className="block text-xs text-gray-500 mb-1">
+                    Border Color
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      id="border-color"
+                      type="color"
+                      value={borderColor}
+                      onChange={handleBorderColorChange}
+                      className="h-8 w-8 border border-gray-300 rounded mr-2"
+                    />
+                    <span className="text-xs font-mono truncate">{borderColor}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -396,40 +407,43 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-medium text-gray-500 mb-3">Size Options</h3>
             
-            {/* Width slider */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="note-width" className="text-xs text-gray-500">Width</label>
-                <span className="text-xs font-medium">{width}px</span>
+            {/* Width and Height in one row */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Width slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="note-width" className="text-xs text-gray-500">Width</label>
+                  <span className="text-xs font-medium">{width}px</span>
+                </div>
+                <input
+                  id="note-width"
+                  type="range"
+                  min="10"
+                  max="800"
+                  step="10"
+                  value={width}
+                  onChange={handleWidthChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
-              <input
-                id="note-width"
-                type="range"
-                min="100"
-                max="400"
-                step="10"
-                value={width}
-                onChange={handleWidthChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            
-            {/* Height slider */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="note-height" className="text-xs text-gray-500">Height</label>
-                <span className="text-xs font-medium">{height}px</span>
+              
+              {/* Height slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="note-height" className="text-xs text-gray-500">Height</label>
+                  <span className="text-xs font-medium">{height}px</span>
+                </div>
+                <input
+                  id="note-height"
+                  type="range"
+                  min="10"
+                  max="800"
+                  step="10"
+                  value={height}
+                  onChange={handleHeightChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
               </div>
-              <input
-                id="note-height"
-                type="range"
-                min="80"
-                max="400"
-                step="10"
-                value={height}
-                onChange={handleHeightChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
             </div>
           </div>
 
@@ -437,89 +451,100 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-medium text-gray-500 mb-3">Styling Options</h3>
             
-            {/* Font size slider */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="font-size" className="text-xs text-gray-500">Font Size</label>
-                <span className="text-xs font-medium">{fontSize}px</span>
-              </div>
-              <input
-                id="font-size"
-                type="range"
-                min="10"
-                max="24"
-                step="1"
-                value={fontSize}
-                onChange={handleFontSizeChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-            
-            {/* Font color picker */}
-            <div className="mb-4">
-              <label htmlFor="font-color" className="block text-xs text-gray-500 mb-1">
-                Font Color
-              </label>
-              <div className="flex items-center">
+            {/* Font size and Border width in one row */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Font size slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="font-size" className="text-xs text-gray-500">Font Size</label>
+                  <span className="text-xs font-medium">{fontSize}px</span>
+                </div>
                 <input
-                  id="font-color"
-                  type="color"
-                  value={fontColor}
-                  onChange={handleFontColorChange}
-                  className="h-8 w-8 border border-gray-300 rounded mr-2"
+                  id="font-size"
+                  type="range"
+                  min="10"
+                  max="24"
+                  step="1"
+                  value={fontSize}
+                  onChange={handleFontSizeChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <span className="text-xs font-mono">{fontColor}</span>
               </div>
-            </div>
-            
-            {/* Background color picker */}
-            <div className="mb-4">
-              <label htmlFor="bg-color" className="block text-xs text-gray-500 mb-1">
-                Background Color
-              </label>
-              <div className="flex items-center">
+
+              {/* Border width slider */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label htmlFor="note-border-width" className="text-xs text-gray-500">Border Width</label>
+                  <span className="text-xs font-medium">{borderWidth}px</span>
+                </div>
                 <input
-                  id="bg-color"
-                  type="color"
-                  value={backgroundColor}
-                  onChange={handleBackgroundColorChange}
-                  className="h-8 w-8 border border-gray-300 rounded mr-2"
+                  id="note-border-width"
+                  type="range"
+                  min="0"
+                  max="10"
+                  value={borderWidth}
+                  onChange={handleBorderWidthChange}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <span className="text-xs font-mono">{backgroundColor}</span>
               </div>
             </div>
             
-            {/* Drop shadow toggle */}
-            <div className="flex items-center mb-3">
-              <input
-                id="note-drop-shadow"
-                type="checkbox"
-                checked={dropShadow}
-                onChange={handleDropShadowChange}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="note-drop-shadow" className="ml-2 text-sm text-gray-700">
-                Drop Shadow
-              </label>
-            </div>
-            
-            {/* Border width */}
-            <div className="mb-3">
-              <div className="flex justify-between items-center mb-1">
-                <label htmlFor="note-border-width" className="text-xs text-gray-500">Border Width</label>
-                <span className="text-xs font-medium">{borderWidth}px</span>
+            {/* Colors and Drop Shadow in one row */}
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {/* Font color picker */}
+              <div>
+                <label htmlFor="font-color" className="block text-xs text-gray-500 mb-1">
+                  Font Color
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="font-color"
+                    type="color"
+                    value={fontColor}
+                    onChange={handleFontColorChange}
+                    className="h-8 w-8 border border-gray-300 rounded mr-2"
+                  />
+                  <span className="text-xs font-mono truncate">{fontColor}</span>
+                </div>
               </div>
-              <input
-                id="note-border-width"
-                type="range"
-                min="0"
-                max="10"
-                value={borderWidth}
-                onChange={handleBorderWidthChange}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
+              
+              {/* Background color picker */}
+              <div>
+                <label htmlFor="bg-color" className="block text-xs text-gray-500 mb-1">
+                  Background
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="bg-color"
+                    type="color"
+                    value={backgroundColor}
+                    onChange={handleBackgroundColorChange}
+                    className="h-8 w-8 border border-gray-300 rounded mr-2"
+                  />
+                  <span className="text-xs font-mono truncate">{backgroundColor}</span>
+                </div>
+              </div>
+              
+              {/* Drop shadow toggle */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  Drop Shadow
+                </label>
+                <div className="flex items-center h-8">
+                  <input
+                    id="note-drop-shadow"
+                    type="checkbox"
+                    checked={dropShadow}
+                    onChange={handleDropShadowChange}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="note-drop-shadow" className="ml-2 text-sm text-gray-700">
+                    Enable
+                  </label>
+                </div>
+              </div>
             </div>
-            
+
             {/* Border color - only show if border width > 0 */}
             {borderWidth > 0 && (
               <div className="mb-3">
@@ -540,28 +565,6 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
             )}
           </div>
 
-          {/* Note preview */}
-          <div className="pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Preview</h3>
-            <div 
-              className="p-3 rounded-lg overflow-hidden"
-              style={{ 
-                backgroundColor: backgroundColor,
-                border: borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : 'none',
-                boxShadow: dropShadow ? '0 4px 8px rgba(0,0,0,0.3)' : 'none',
-              }}
-            >
-              <div 
-                className="whitespace-pre-wrap break-words"
-                style={{ 
-                  fontSize: `${fontSize}px`,
-                  color: fontColor,
-                }}
-              >
-                {noteContent || 'Note preview'}
-              </div>
-            </div>
-          </div>
         </div>
       )}
       

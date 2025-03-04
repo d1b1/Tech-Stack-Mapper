@@ -122,7 +122,7 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
         {/* Connection label */}
         <div>
           <label htmlFor="connection-label" className="block text-sm font-medium text-gray-500 mb-1">
-            Label
+            Label (optional)
           </label>
           <input
             id="connection-label"
@@ -173,39 +173,42 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
           </div>
         </div>
 
-        {/* Line color */}
-        <div>
-          <label htmlFor="line-color" className="block text-sm font-medium text-gray-500 mb-1">
-            Line Color
-          </label>
-          <div className="flex items-center">
-            <input
-              id="line-color"
-              type="color"
-              value={lineColor}
-              onChange={(e) => setLineColor(e.target.value)}
-              className="h-8 w-8 border border-gray-300 rounded mr-2"
-            />
-            <span className="text-xs font-mono">{lineColor}</span>
+        {/* Line color and Line width in one row */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Line color */}
+          <div>
+            <label htmlFor="line-color" className="block text-sm font-medium text-gray-500 mb-1">
+              Line Color
+            </label>
+            <div className="flex items-center">
+              <input
+                id="line-color"
+                type="color"
+                value={lineColor}
+                onChange={(e) => setLineColor(e.target.value)}
+                className="h-8 w-8 border border-gray-300 rounded mr-2"
+              />
+              <span className="text-xs font-mono">{lineColor}</span>
+            </div>
           </div>
-        </div>
 
-        {/* Line width */}
-        <div>
-          <div className="flex justify-between items-center mb-1">
-            <label htmlFor="line-width" className="text-sm font-medium text-gray-500">Line Width</label>
-            <span className="text-xs font-medium">{lineWidth}px</span>
+          {/* Line width */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label htmlFor="line-width" className="text-sm font-medium text-gray-500">Line Width</label>
+              <span className="text-xs font-medium">{lineWidth}px</span>
+            </div>
+            <input
+              id="line-width"
+              type="range"
+              min="1"
+              max="5"
+              step="1"
+              value={lineWidth}
+              onChange={(e) => setLineWidth(parseInt(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
-          <input
-            id="line-width"
-            type="range"
-            min="1"
-            max="5"
-            step="1"
-            value={lineWidth}
-            onChange={(e) => setLineWidth(parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-          />
         </div>
 
         {/* Line dash */}
@@ -220,33 +223,6 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
           <label htmlFor="line-dash" className="ml-2 text-sm text-gray-700">
             Dashed Line
           </label>
-        </div>
-
-        {/* Preview */}
-        <div className="pt-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Preview</h3>
-          <div className="h-16 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center">
-            <svg width="200" height="40" className="overflow-visible">
-              <path
-                d="M 20,20 L 180,20"
-                stroke={lineColor}
-                strokeWidth={lineWidth}
-                strokeDasharray={lineDash ? "5,5" : "none"}
-                fill="none"
-              />
-              {label && (
-                <text
-                  x="100"
-                  y="15"
-                  textAnchor="middle"
-                  fontSize="12"
-                  fill="#333"
-                >
-                  {label}
-                </text>
-              )}
-            </svg>
-          </div>
         </div>
 
         {/* Action buttons */}

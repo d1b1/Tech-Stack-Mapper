@@ -76,6 +76,18 @@ const LogoNode: React.FC<LogoNodeProps> = ({ node }) => {
           </Group>
         </React.Fragment>
       )}
+
+      {/* Background for text */}
+      <Rect
+        width={node.width + (hasBorder ? 2 * (node.borderWidth || 0) : 0)}
+        height={node.description ? 40 : 20}
+        y={node.height + (hasBorder ? 2 * (node.borderWidth || 0) : 0) + 10}
+        fill="white"
+        opacity={0.85}
+        cornerRadius={3}
+      />
+
+      {/* Title text */}
       <Text
         text={node.content}
         width={node.width + (hasBorder ? 2 * (node.borderWidth || 0) : 0)}
@@ -84,15 +96,19 @@ const LogoNode: React.FC<LogoNodeProps> = ({ node }) => {
         fontSize={14}
         fill="#333"
       />
+
+      {/* Description text with background */}
       {node.description && (
-        <Text
-          text={node.description}
-          width={node.width + (hasBorder ? 2 * (node.borderWidth || 0) : 0)}
-          align="center"
-          y={node.height + (hasBorder ? 2 * (node.borderWidth || 0) : 0) + 35}
-          fontSize={12}
-          fill="#666"
-        />
+        <>
+          <Text
+            text={node.description}
+            width={node.width + (hasBorder ? 2 * (node.borderWidth || 0) : 0)}
+            align="center"
+            y={node.height + (hasBorder ? 2 * (node.borderWidth || 0) : 0) + 35}
+            fontSize={12}
+            fill="#666"
+          />
+        </>
       )}
     </Group>
   );

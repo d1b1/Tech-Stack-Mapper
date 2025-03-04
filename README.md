@@ -8,7 +8,7 @@ to replace my code-first inner developer.
 - __Tokens__: 1.1m
 - __Ai Builder__: [Bolt.new](https://bolt.new)
 - __Quality__: Good for Internal use. Not production ready.
-- __Demo__: [Demo Site](https://apps.social-preview.lowcodecto.com/)
+- __Demo__: [Demo Site](https://apps.stack.lowcodecto.com/)
 - __Mission__: Build on Bolt.new, tweak in code on Github.
 
 # Goal

@@ -12,6 +12,9 @@ import ConnectionDetailsPanel from './components/ConnectionDetailsPanel';
 import ExportModal from './components/ExportModal';
 import SettingsPanel from './components/SettingsPanel';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
+import SaveDiagramModal from './components/SaveDiagramModal';
+import LoadDiagramModal from './components/LoadDiagramModal';
+import LoadExampleModal from './components/LoadExampleModal';
 import { NodeData, ConnectionData, DiagramData } from './types';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import {
@@ -43,10 +46,10 @@ const EXAMPLE_DATA = {
       type: "logo",
       content: "React",
       description: "Frontend Framework",
-      x: 300,
-      y: 100,
-      width: 120,
-      height: 120,
+      x: 400,
+      y: 200,
+      width: 100,
+      height: 100,
       imageUrl: "https://cdn.lowcodecto.com/logos/react.png"
     },
     {
@@ -54,10 +57,10 @@ const EXAMPLE_DATA = {
       type: "logo",
       content: "Node.js",
       description: "Backend Runtime",
-      x: 300,
-      y: 300,
-      width: 120,
-      height: 120,
+      x: 400,
+      y: 400,
+      width: 100,
+      height: 100,
       imageUrl: "https://cdn.lowcodecto.com/logos/nodejs.png"
     },
     {
@@ -65,20 +68,86 @@ const EXAMPLE_DATA = {
       type: "logo",
       content: "PostgreSQL",
       description: "Database",
-      x: 500,
-      y: 300,
-      width: 120,
-      height: 120,
+      x: 600,
+      y: 400,
+      width: 100,
+      height: 100,
       imageUrl: "https://cdn.lowcodecto.com/logos/postgresql.png"
+    },
+    {
+      id: "cache",
+      type: "logo",
+      content: "Redis",
+      description: "Cache Layer",
+      x: 600,
+      y: 200,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/redis.png"
+    },
+    {
+      id: "auth",
+      type: "logo",
+      content: "Auth0",
+      description: "Authentication Service",
+      x: 200,
+      y: 300,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/auth0.png"
+    },
+    {
+      id: "cdn",
+      type: "logo",
+      content: "Cloudflare",
+      description: "CDN & Security",
+      x: 800,
+      y: 300,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/cloudflare.png"
+    },
+    {
+      id: "storage",
+      type: "logo",
+      content: "S3",
+      description: "Object Storage",
+      x: 700,
+      y: 500,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/aws-s3.png"
+    },
+    {
+      id: "search",
+      type: "logo",
+      content: "Elasticsearch",
+      description: "Search Engine",
+      x: 300,
+      y: 500,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/elasticsearch.png"
+    },
+    {
+      id: "monitoring",
+      type: "logo",
+      content: "Datadog",
+      description: "Monitoring & APM",
+      x: 500,
+      y: 600,
+      width: 100,
+      height: 100,
+      imageUrl: "https://cdn.lowcodecto.com/logos/datadog.png"
     },
     {
       id: "note1",
       type: "note",
-      content: "Main application stack",
-      x: 100,
-      y: 200,
-      width: 150,
-      height: 100,
+      content: "Modern Web Stack\nScalable Architecture",
+      x: 400,
+      y: 100,
+      width: 200,
+      height: 80,
       fontSize: 14,
       fontColor: "#333333",
       backgroundColor: "#fffde7"
@@ -99,7 +168,67 @@ const EXAMPLE_DATA = {
       id: "conn2",
       from: "backend",
       to: "database",
-      label: "Database Queries",
+      label: "Queries",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn3",
+      from: "backend",
+      to: "cache",
+      label: "Cache",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn4",
+      from: "frontend",
+      to: "auth",
+      label: "Auth",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn5",
+      from: "frontend",
+      to: "cdn",
+      label: "Assets",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn6",
+      from: "backend",
+      to: "storage",
+      label: "Files",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn7",
+      from: "backend",
+      to: "search",
+      label: "Search",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn8",
+      from: "monitoring",
+      to: "backend",
+      label: "Metrics",
       pathType: "smart",
       lineColor: "#666666",
       lineWidth: 2,
@@ -139,6 +268,10 @@ function App() {
   });
   const [backgroundColor, setBackgroundColor] = useState('#f8fafc');
   const [isLoading, setIsLoading] = useState(true);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [showLoadExampleModal, setShowLoadExampleModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const stageRef = useRef<any>(null);
 
@@ -336,8 +469,13 @@ function App() {
     setShowClearAllConfirmation(false);
   };
 
-  // Save diagram to JSON file
+  // Modify the save handler to show the modal
   const handleSave = () => {
+    setShowSaveModal(true);
+  };
+
+  // Add new handler for actual saving
+  const handleSaveConfirm = (fileName: string) => {
     const diagramData: DiagramData = {
       nodes,
       connections,
@@ -347,12 +485,14 @@ function App() {
     const dataStr = JSON.stringify(diagramData, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    const exportFileDefaultName = 'stack-diagram.json';
+    const exportFileDefaultName = `${fileName}.json`;
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
+    
+    setShowSaveModal(false);
   };
 
   // Export diagram as PNG
@@ -447,8 +587,21 @@ function App() {
     }));
   };
 
-  // Load diagram from JSON file
-  const handleLoad = (file: File) => {
+  // Modify the load handler to show the modal first
+  const handleLoad = () => {
+    setShowLoadModal(true);
+  };
+
+  // Add new handler for actual file selection
+  const handleLoadConfirm = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+    setShowLoadModal(false);
+  };
+
+  // Modify the file change handler
+  const handleFileChange = (file: File) => {
     const reader = new FileReader();
     
     reader.onload = (e) => {
@@ -642,9 +795,14 @@ function App() {
   };
 
   const handleLoadExample = () => {
+    setShowLoadExampleModal(true);
+  };
+
+  const handleLoadExampleConfirm = () => {
     dispatch(setNodes(EXAMPLE_DATA.nodes));
     dispatch(setConnections(EXAMPLE_DATA.connections));
     handleCenterElements(); // Center the example elements after loading
+    setShowLoadExampleModal(false);
   };
 
   if (isLoading) {
@@ -795,6 +953,40 @@ function App() {
           onCancel={() => setShowClearAllConfirmation(false)}
         />
       )}
+
+      {showSaveModal && (
+        <SaveDiagramModal
+          onSave={handleSaveConfirm}
+          onCancel={() => setShowSaveModal(false)}
+        />
+      )}
+
+      {showLoadModal && (
+        <LoadDiagramModal
+          onConfirm={handleLoadConfirm}
+          onCancel={() => setShowLoadModal(false)}
+        />
+      )}
+
+      {showLoadExampleModal && (
+        <LoadExampleModal
+          onConfirm={handleLoadExampleConfirm}
+          onCancel={() => setShowLoadExampleModal(false)}
+        />
+      )}
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            handleFileChange(file);
+          }
+        }}
+        accept=".json"
+        className="hidden"
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
   "name": "stack-diagram-builder",
   "private": true,
   "version": "0.0.0",
+  "author": "Stephan Smith",
   "type": "module",
   "scripts": {
     "dev": "vite",

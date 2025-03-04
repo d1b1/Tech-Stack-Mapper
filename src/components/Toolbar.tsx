@@ -7,7 +7,7 @@ interface ToolbarProps {
   onAddConnection: () => void;
   onDelete: () => void;
   onSave: () => void;
-  onLoad: (file: File) => void;
+  onLoad: () => void;
   onExport: () => void;
   onClearAll: () => void;
   onCenterElements: () => void;
@@ -37,7 +37,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      onLoad(file);
+      onLoad();
       setShowOptionsMenu(false);
     }
   };
@@ -67,7 +67,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   const handleLoad = () => {
-    fileInputRef.current?.click();
+    onLoad();
     setShowOptionsMenu(false);
   };
 
@@ -97,6 +97,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
         
         {/* Right-side buttons group */}
         <div className="flex items-center space-x-2 mr-2">
+          {/* Export as PNG Button - New position and green style */}
+          <button
+            onClick={handleExport}
+            className="p-2 rounded bg-green-500 text-white hover:bg-green-600 flex items-center space-x-1"
+            title="Export as PNG"
+          >
+            <Download size={18} />
+            <span>Export as PNG</span>
+          </button>
+
           {/* Add Stack Element Button */}
           <button
             onClick={onAddLogo}
@@ -104,7 +114,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             title="Add Stack Element"
           >
             <Image size={18} />
-            <span>Add Stack Element</span>
+            <span>Add Stack</span>
           </button>
           
           {/* Add Note Button */}
@@ -151,13 +161,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
                   >
                     <Upload size={16} className="mr-2" />
                     <span>Load Diagram</span>
-                  </button>
-                  <button
-                    onClick={handleExport}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
-                  >
-                    <Download size={16} className="mr-2" />
-                    <span>Export as PNG</span>
                   </button>
                   <button
                     onClick={handleCenterElements}

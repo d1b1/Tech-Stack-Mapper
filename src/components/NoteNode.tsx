@@ -72,6 +72,7 @@ const NoteNode: React.FC<NoteNodeProps> = ({ node }) => {
         fontSize={fontSize}
         fill={fontColor}
         wrap="word"
+        align={node.textAlign || 'left'}
       />
     </Group>
   );

@@ -14,6 +14,7 @@ export interface NodeData {
   fontSize?: number;
   fontColor?: string;
   backgroundColor?: string;
+  textAlign?: 'left' | 'center' | 'right';
 }
 
 export interface ConnectionData {

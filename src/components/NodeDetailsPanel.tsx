@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit, X, Save, Plus, Minus, DropletIcon, Trash2, Link } from 'lucide-react';
+import { Edit, X, Save, Plus, Minus, DropletIcon, Trash2, Link, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { NodeData } from '../types';
+
+// Add this type definition at the top of the file
+type TextAlignment = 'left' | 'center' | 'right';
 
 interface NodeDetailsPanelProps {
   node: NodeData | null;
@@ -31,6 +34,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   const [backgroundColor, setBackgroundColor] = useState('#fffde7');
   const [width, setWidth] = useState(200);
   const [height, setHeight] = useState(120);
+  const [textAlign, setTextAlign] = useState<TextAlignment>('left');
   
   const nameInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
@@ -51,6 +55,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
       setBackgroundColor(node.backgroundColor || (node.type === 'note' ? '#fffde7' : '#ffffff'));
       setWidth(node.width || 200);
       setHeight(node.height || 120);
+      setTextAlign((node.textAlign as TextAlignment) || 'left');
       
       // Set image size to current width
       if (node.type === 'logo') {
@@ -203,6 +208,17 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
     }
   };
 
+  // Replace the Text Alignment dropdown with this new control
+  const handleTextAlignChange = (alignment: TextAlignment) => {
+    setTextAlign(alignment);
+    if (node) {
+      onUpdate({
+        ...node,
+        textAlign: alignment
+      });
+    }
+  };
+
   // Prevent clicks in the panel from propagating to the canvas
   const handlePanelClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -299,8 +315,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
           
           {/* Styling options */}
           <div className="pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Styling Options</h3>
-            
+ 
             {/* Image size and Border width in one row */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Image size slider */}
@@ -449,8 +464,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
 
           {/* Note styling options */}
           <div className="pt-4 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Styling Options</h3>
-            
+
             {/* Font size and Border width in one row */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {/* Font size slider */}
@@ -489,6 +503,51 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
               </div>
             </div>
             
+            {/* Text Alignment buttons */}
+            <div className="mb-4">
+              <label className="block text-xs text-gray-500 mb-1">
+                Text Alignment
+              </label>
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => handleTextAlignChange('left')}
+                  className={`p-2 rounded ${
+                    textAlign === 'left' 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title="Align Left"
+                >
+                  <AlignLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTextAlignChange('center')}
+                  className={`p-2 rounded ${
+                    textAlign === 'center' 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title="Align Center"
+                >
+                  <AlignCenter size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTextAlignChange('right')}
+                  className={`p-2 rounded ${
+                    textAlign === 'right' 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title="Align Right"
+                >
+                  <AlignRight size={16} />
+                </button>
+              </div>
+            </div>
+
             {/* Colors and Drop Shadow in one row */}
             <div className="grid grid-cols-3 gap-4 mb-4">
               {/* Font color picker */}

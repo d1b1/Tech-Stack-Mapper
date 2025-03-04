@@ -35,6 +35,79 @@ const STORAGE_KEY = 'stack-diagram-data';
 const NOTE_SETTINGS_KEY = 'stack-diagram-note-settings';
 const CONNECTION_SETTINGS_KEY = 'stack-diagram-connection-settings';
 
+// Add this example data
+const EXAMPLE_DATA = {
+  nodes: [
+    {
+      id: "frontend",
+      type: "logo",
+      content: "React",
+      description: "Frontend Framework",
+      x: 300,
+      y: 100,
+      width: 120,
+      height: 120,
+      imageUrl: "https://cdn.lowcodecto.com/logos/react.png"
+    },
+    {
+      id: "backend",
+      type: "logo",
+      content: "Node.js",
+      description: "Backend Runtime",
+      x: 300,
+      y: 300,
+      width: 120,
+      height: 120,
+      imageUrl: "https://cdn.lowcodecto.com/logos/nodejs.png"
+    },
+    {
+      id: "database",
+      type: "logo",
+      content: "PostgreSQL",
+      description: "Database",
+      x: 500,
+      y: 300,
+      width: 120,
+      height: 120,
+      imageUrl: "https://cdn.lowcodecto.com/logos/postgresql.png"
+    },
+    {
+      id: "note1",
+      type: "note",
+      content: "Main application stack",
+      x: 100,
+      y: 200,
+      width: 150,
+      height: 100,
+      fontSize: 14,
+      fontColor: "#333333",
+      backgroundColor: "#fffde7"
+    }
+  ],
+  connections: [
+    {
+      id: "conn1",
+      from: "frontend",
+      to: "backend",
+      label: "API Calls",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    },
+    {
+      id: "conn2",
+      from: "backend",
+      to: "database",
+      label: "Database Queries",
+      pathType: "smart",
+      lineColor: "#666666",
+      lineWidth: 2,
+      lineDash: [5, 5]
+    }
+  ]
+};
+
 function App() {
   const dispatch = useAppDispatch();
   const {
@@ -568,6 +641,12 @@ function App() {
     dispatch(setSelectedNodeId(newNode.id));
   };
 
+  const handleLoadExample = () => {
+    dispatch(setNodes(EXAMPLE_DATA.nodes));
+    dispatch(setConnections(EXAMPLE_DATA.connections));
+    handleCenterElements(); // Center the example elements after loading
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -585,6 +664,7 @@ function App() {
         onClearAll={handleShowClearAllConfirmation}
         onCenterElements={handleCenterElements}
         onOpenSettings={handleOpenSettings}
+        onLoadExample={handleLoadExample}
         selectedNodeId={selectedNodeId}
       />
       

@@ -12,6 +12,7 @@ interface ToolbarProps {
   onClearAll: () => void;
   onCenterElements: () => void;
   onOpenSettings: () => void;
+  onLoadExample: () => void;
   selectedNodeId: string | null;
 }
 
@@ -26,6 +27,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onClearAll,
   onCenterElements,
   onOpenSettings,
+  onLoadExample,
   selectedNodeId,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +81,11 @@ const Toolbar: React.FC<ToolbarProps> = ({
     setShowOptionsMenu(false);
   };
 
+  const handleLoadExample = () => {
+    onLoadExample();
+    setShowOptionsMenu(false);
+  };
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0 bg-white shadow-md p-2 z-20 flex items-center">
@@ -124,6 +131,13 @@ const Toolbar: React.FC<ToolbarProps> = ({
             {showOptionsMenu && (
               <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50 transform -translate-x-0">
                 <div className="py-1">
+                  <button
+                    onClick={handleLoadExample}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    <span>Load Example</span>
+                  </button>
                   <button
                     onClick={handleSave}
                     className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"

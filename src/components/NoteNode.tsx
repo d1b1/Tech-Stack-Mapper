@@ -15,21 +15,6 @@ const NoteNode: React.FC<NoteNodeProps> = ({ node }) => {
   const backgroundColor = node.backgroundColor || '#fffde7';
   const hasDropShadow = node.dropShadow;
 
-  // Custom border style that only shows on hover and only for top and left sides
-  const getBorderProps = () => {
-    if (!isHovered) return {};
-    
-    return {
-      stroke: '#e6ee9c',
-      strokeWidth: 1,
-      // Draw only top and left borders using a custom dash array
-      // The pattern is [width, 0, width, height]
-      // This creates a line for the width (top), skips the right side,
-      // creates a line for the height (left), and skips the bottom
-      dash: [node.width, 0, node.height, 0]
-    };
-  };
-
   return (
     <Group
       onMouseEnter={() => setIsHovered(true)}
@@ -57,11 +42,10 @@ const NoteNode: React.FC<NoteNodeProps> = ({ node }) => {
         height={node.height}
         fill={backgroundColor}
         cornerRadius={5}
-        shadowColor={hasDropShadow ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)"}
-        shadowBlur={hasDropShadow ? 10 : 5}
-        shadowOffset={{ x: 0, y: hasDropShadow ? 4 : 2 }}
-        shadowOpacity={hasDropShadow ? 0.7 : 0.5}
-        {...getBorderProps()}
+        shadowColor={hasDropShadow ? "rgba(0,0,0,0.2)" : "transparent"}
+        shadowBlur={hasDropShadow ? 10 : 0}
+        shadowOffset={{ x: 0, y: hasDropShadow ? 4 : 0 }}
+        shadowOpacity={hasDropShadow ? 0.7 : 0}
       />
       <Text
         text={node.content}

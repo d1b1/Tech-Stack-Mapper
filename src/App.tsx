@@ -288,34 +288,76 @@ function App() {
 
   // Process the PNG export with the given filename
   const handleExportConfirm = (fileName: string) => {
-    if (!stageRef.current) {
-      alert('Cannot export diagram. Please try again.');
-      return;
-    }
+    if (stageRef.current) {
+      // Get all nodes and find the bounding box
+      const nodes = stageRef.current.find('Group');
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
 
-    try {
-      // Get the Konva stage
-      const stage = stageRef.current.getStage();
-      
-      // Create a data URL of the stage
-      const dataURL = stage.toDataURL({
-        pixelRatio: 2, // Higher quality
-        mimeType: 'image/png'
+      nodes.forEach((node: any) => {
+        const box = node.getClientRect();
+        minX = Math.min(minX, box.x);
+        minY = Math.min(minY, box.y);
+        maxX = Math.max(maxX, box.x + box.width);
+        maxY = Math.max(maxY, box.y + box.height);
       });
-      
-      // Create a link element and trigger download
-      const link = document.createElement('a');
-      link.download = `${fileName}.png`;
-      link.href = dataURL;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setShowExportModal(false);
-    } catch (error) {
-      console.error('Error exporting diagram:', error);
-      alert('Failed to export diagram. Please try again.');
+
+      // Add 30px padding on all sides
+      const padding = 30;
+      const width = maxX - minX + (padding * 2);
+      const height = maxY - minY + (padding * 2);
+
+      // Create a temporary canvas with the exact size needed
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempContext = tempCanvas.getContext('2d');
+
+      if (tempContext) {
+        // Fill with background color
+        tempContext.fillStyle = backgroundColor;
+        tempContext.fillRect(0, 0, width, height);
+
+        // Draw the stage content
+        const stage = stageRef.current;
+        const oldPos = stage.position();
+        const oldScale = stage.scale();
+        const oldWidth = stage.width();
+        const oldHeight = stage.height();
+
+        // Temporarily adjust stage to fit our export
+        stage.position({
+          x: -minX + padding,
+          y: -minY + padding
+        });
+        stage.width(width);
+        stage.height(height);
+
+        // Draw the stage
+        stage.draw();
+
+        // Convert to PNG
+        const dataURL = stage.toCanvas().toDataURL();
+
+        // Restore original stage properties
+        stage.position(oldPos);
+        stage.scale(oldScale);
+        stage.width(oldWidth);
+        stage.height(oldHeight);
+        stage.draw();
+
+        // Create download link
+        const link = document.createElement('a');
+        link.download = `${fileName}.png`;
+        link.href = dataURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
+    setShowExportModal(false);
   };
 
   // Open settings panel

@@ -203,12 +203,6 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
     }
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this element?')) {
-      onDelete && onDelete();
-    }
-  };
-
   // Prevent clicks in the panel from propagating to the canvas
   const handlePanelClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -574,7 +568,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
       {/* Delete button at the bottom */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <button
-          onClick={handleDelete}
+          onClick={onDelete}
           className="w-full flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         >
           <Trash2 size={16} className="mr-2" />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { ConnectionData, NodeData } from '../types';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 interface ConnectionDetailsPanelProps {
   connection: ConnectionData;
@@ -22,6 +23,7 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
   const [lineColor, setLineColor] = useState(connection.lineColor || '#666666');
   const [lineWidth, setLineWidth] = useState(connection.lineWidth || 2);
   const [lineDash, setLineDash] = useState<boolean>(connection.lineDash ? true : false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   // Get source and target node names
   const sourceNode = nodes.find(node => node.id === connection.from);
@@ -74,10 +76,13 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
     });
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this connection?')) {
-      onDelete(connection.id);
-    }
+  const handleShowDeleteConfirmation = () => {
+    setShowDeleteConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(connection.id);
+    setShowDeleteConfirmation(false);
   };
 
   // Prevent clicks in the panel from propagating to the canvas
@@ -247,7 +252,7 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
         {/* Action buttons */}
         <div className="pt-4 border-t border-gray-200 flex justify-between">
           <button
-            onClick={handleDelete}
+            onClick={handleShowDeleteConfirmation}
             className="flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
             <Trash2 size={16} className="mr-2" />
@@ -261,6 +266,15 @@ const ConnectionDetailsPanel: React.FC<ConnectionDetailsPanelProps> = ({
           </button>
         </div>
       </div>
+
+      {showDeleteConfirmation && (
+        <DeleteConfirmationModal
+          title="Delete Connection"
+          message="Are you sure you want to delete this connection? This action cannot be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setShowDeleteConfirmation(false)}
+        />
+      )}
     </div>
   );
 };

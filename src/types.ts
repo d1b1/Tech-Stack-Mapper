@@ -31,6 +31,9 @@ export interface ConnectionData {
 export interface DiagramData {
   nodes: NodeData[];
   connections: ConnectionData[];
+  canvasSettings?: {
+    backgroundColor: string;
+  };
 }
 
 export interface Point {

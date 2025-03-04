@@ -11,11 +11,11 @@ import NodeDetailsPanel from './components/NodeDetailsPanel';
 import ConnectionDetailsPanel from './components/ConnectionDetailsPanel';
 import ExportModal from './components/ExportModal';
 import SettingsPanel from './components/SettingsPanel';
+import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import { NodeData, ConnectionData, DiagramData } from './types';
 
 // Local storage key
 const STORAGE_KEY = 'stack-diagram-data';
-const SETTINGS_KEY = 'stack-diagram-settings';
 const NOTE_SETTINGS_KEY = 'stack-diagram-note-settings';
 const CONNECTION_SETTINGS_KEY = 'stack-diagram-connection-settings';
 
@@ -31,6 +31,8 @@ function App() {
   const [showConnectionLabelEditor, setShowConnectionLabelEditor] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSettingsPanel, setShowSettingsPanel] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showClearAllConfirmation, setShowClearAllConfirmation] = useState(false);
   const [connectionMode, setConnectionMode] = useState<'from' | 'to' | null>(null);
   const [connectionSource, setConnectionSource] = useState<string | null>(null);
   const [showDetailsPanel, setShowDetailsPanel] = useState(false);
@@ -57,22 +59,16 @@ function App() {
         if (parsedData.nodes && parsedData.connections) {
           setNodes(parsedData.nodes);
           setConnections(parsedData.connections);
+          
+          // Load canvas settings from the same data object
+          if (parsedData.canvasSettings) {
+            setCanvasSettings(parsedData.canvasSettings);
+          }
+          
           console.log('Loaded diagram data from localStorage');
         }
       } catch (error) {
         console.error('Error loading diagram from localStorage:', error);
-      }
-    }
-
-    // Load canvas settings
-    const savedSettings = localStorage.getItem(SETTINGS_KEY);
-    if (savedSettings) {
-      try {
-        const parsedSettings = JSON.parse(savedSettings);
-        setCanvasSettings(parsedSettings);
-        console.log('Loaded canvas settings from localStorage');
-      } catch (error) {
-        console.error('Error loading canvas settings from localStorage:', error);
       }
     }
     
@@ -89,23 +85,18 @@ function App() {
     }
   }, []);
 
-  // Save data to localStorage whenever nodes or connections change
+  // Save data to localStorage whenever nodes, connections, or canvas settings change
   useEffect(() => {
-    if (nodes.length > 0 || connections.length > 0) {
+    if (nodes.length > 0 || connections.length > 0 || canvasSettings) {
       const diagramData: DiagramData = {
         nodes,
         connections,
+        canvasSettings
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(diagramData));
       console.log('Saved diagram data to localStorage');
     }
-  }, [nodes, connections]);
-
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(canvasSettings));
-    console.log('Saved canvas settings to localStorage');
-  }, [canvasSettings]);
+  }, [nodes, connections, canvasSettings]);
   
   // Save note settings to localStorage whenever they change
   useEffect(() => {
@@ -290,6 +281,13 @@ function App() {
     setShowConnectionDetailsPanel(false);
   };
 
+  // Show delete confirmation modal
+  const handleShowDeleteConfirmation = () => {
+    if (selectedNodeId) {
+      setShowDeleteConfirmation(true);
+    }
+  };
+
   // Delete selected node and its connections
   const handleDelete = () => {
     if (selectedNodeId) {
@@ -304,18 +302,23 @@ function App() {
       );
       
       setSelectedNodeId(null);
+      setShowDeleteConfirmation(false);
     }
+  };
+
+  // Show clear all confirmation modal
+  const handleShowClearAllConfirmation = () => {
+    setShowClearAllConfirmation(true);
   };
 
   // Clear all data from localStorage and reset the diagram
   const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to clear all diagram data? This cannot be undone.')) {
-      setNodes([]);
-      setConnections([]);
-      localStorage.removeItem(STORAGE_KEY);
-      setSelectedNodeId(null);
-      setSelectedConnectionId(null);
-    }
+    setNodes([]);
+    setConnections([]);
+    localStorage.removeItem(STORAGE_KEY);
+    setSelectedNodeId(null);
+    setSelectedConnectionId(null);
+    setShowClearAllConfirmation(false);
   };
 
   // Save diagram to JSON file
@@ -323,6 +326,7 @@ function App() {
     const diagramData: DiagramData = {
       nodes,
       connections,
+      canvasSettings
     };
     
     const dataStr = JSON.stringify(diagramData, null, 2);
@@ -398,6 +402,11 @@ function App() {
         if (data.nodes && data.connections) {
           setNodes(data.nodes);
           setConnections(data.connections);
+          
+          // Load canvas settings if available
+          if (data.canvasSettings) {
+            setCanvasSettings(data.canvasSettings);
+          }
         }
       } catch (error) {
         console.error('Error loading diagram:', error);
@@ -572,11 +581,11 @@ function App() {
         onAddLogo={handleAddLogo}
         onAddNote={handleAddNote}
         onAddConnection={handleAddConnection}
-        onDelete={handleDelete}
+        onDelete={handleShowDeleteConfirmation}
         onSave={handleSave}
         onLoad={handleLoad}
         onExport={handleExport}
-        onClearAll={handleClearAll}
+        onClearAll={handleShowClearAllConfirmation}
         onCenterElements={handleCenterElements}
         onOpenSettings={handleOpenSettings}
         selectedNodeId={selectedNodeId}
@@ -603,13 +612,12 @@ function App() {
             onEdit={handleNodeDoubleClick}
             onUpdate={handleNodeUpdateFromPanel}
             onClose={handleCloseDetailsPanel}
-            onDelete={handleDelete}
+            onDelete={handleShowDeleteConfirmation}
             onAddConnection={handleAddConnection}
           />
         )}
 
-        {showConnectionDetailsPanel && selectedConnection && (
-          <ConnectionDetailsPanel
+        {showConnectionDetailsPanel && selectedConnection && ( <ConnectionDetailsPanel
             connection={selectedConnection}
             nodes={nodes}
             onUpdate={handleConnectionUpdate}
@@ -675,6 +683,24 @@ function App() {
           backgroundColor={canvasSettings.backgroundColor}
           onSave={handleSaveSettings}
           onClose={() => setShowSettingsPanel(false)}
+        />
+      )}
+
+      {showDeleteConfirmation && (
+        <DeleteConfirmationModal
+          title="Delete Element"
+          message="Are you sure you want to delete this element? This action cannot be undone."
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteConfirmation(false)}
+        />
+      )}
+
+      {showClearAllConfirmation && (
+        <DeleteConfirmationModal
+          title="Clear All Data"
+          message="Are you sure you want to clear all diagram data? This action cannot be undone."
+          onConfirm={handleClearAll}
+          onCancel={() => setShowClearAllConfirmation(false)}
         />
       )}
     </div>

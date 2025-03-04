@@ -254,6 +254,7 @@ function App() {
   // Show clear all confirmation modal
   const handleShowClearAllConfirmation = () => {
     setShowClearAllConfirmation(true);
+    setShowOptionsMenu(false); // Close the options menu
   };
 
   // Clear all data from localStorage and reset the diagram
@@ -554,6 +555,19 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleCloneNode = (node: NodeData) => {
+    const newNode = {
+      ...node,
+      id: crypto.randomUUID(), // Generate new ID
+      x: node.x + 20, // Offset slightly from original
+      y: node.y + 20,
+      content: `${node.content} (Copy)` // Add (Copy) to name
+    };
+    
+    dispatch(addNode(newNode));
+    dispatch(setSelectedNodeId(newNode.id));
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -573,6 +587,20 @@ function App() {
         onOpenSettings={handleOpenSettings}
         selectedNodeId={selectedNodeId}
       />
+      
+      {/* Welcome message */}
+      {nodes.length === 0 && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center">
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">
+            Welcome to LCCTO Technology Stack Builder!
+          </h2>
+          <br/>
+          <p className="text-lg text-gray-600">
+            Click 'Add Stack Element' in the toolbar above to add your first stack element.
+            This tool is designed to help a founder plan for an map their technology stack.
+          </p>
+        </div>
+      )}
       
       <div className="pt-16 pb-12 flex flex-1">
         <div className="w-full">
@@ -597,6 +625,7 @@ function App() {
             onClose={handleCloseDetailsPanel}
             onDelete={handleShowDeleteConfirmation}
             onAddConnection={handleAddConnection}
+            onClone={handleCloneNode}
           />
         )}
 

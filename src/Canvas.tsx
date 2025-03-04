@@ -12,6 +12,8 @@ interface CanvasProps {
   selectedNodeId: string | null;
   onConnectionSelect: (id: string) => void;
   selectedConnectionId: string | null;
+  stageRef: React.RefObject<any>;
+  backgroundColor?: string;
 }
 
 const Canvas: React.FC<CanvasProps> = ({
@@ -22,9 +24,10 @@ const Canvas: React.FC<CanvasProps> = ({
   selectedNodeId,
   onConnectionSelect,
   selectedConnectionId,
+  stageRef,
+  backgroundColor = '#f8fafc'
 }) => {
   const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const stageRef = useRef<any>(null);
 
   // Update stage size on window resize
   React.useEffect(() => {
@@ -56,7 +59,7 @@ const Canvas: React.FC<CanvasProps> = ({
       height={stageSize.height}
       ref={stageRef}
       onClick={handleStageClick}
-      className="bg-gray-50"
+      style={{ backgroundColor }}
     >
       <Layer>
         {/* Draw connections */}

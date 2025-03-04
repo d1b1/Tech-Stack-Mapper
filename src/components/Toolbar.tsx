@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Plus, Image, StickyNote, Save, Upload, Download, Menu, X, AlignCenter, Settings } from 'lucide-react';
+import { Plus, Image, StickyNote, Save, Upload, Download, Menu, X, AlignCenter, Settings, Trash2 } from 'lucide-react';
 
 interface ToolbarProps {
   onAddLogo: () => void;
@@ -81,9 +81,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-md p-2 z-10 flex items-center">
+      <div className="fixed top-0 left-0 right-0 bg-white shadow-md p-2 z-20 flex items-center">
         {/* Title */}
-        <h1 className="text-xl font-bold text-gray-800">Technology Stack Mapper</h1>
+        <h1 className="text-xl font-bold text-gray-800">Technology Stack Builder</h1>
         
         {/* Push everything else to the right */}
         <div className="flex-grow"></div>
@@ -122,7 +122,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             </button>
             
             {showOptionsMenu && (
-              <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-20 transform -translate-x-0">
+              <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-50 transform -translate-x-0">
                 <div className="py-1">
                   <button
                     onClick={handleSave}
@@ -159,6 +159,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
                     <Settings size={16} className="mr-2" />
                     <span>Settings</span>
                   </button>
+                  <div className="border-t border-gray-200 my-1"></div>
+                  <button
+                    onClick={onClearAll}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-red-600"
+                  >
+                    <Trash2 size={16} className="mr-2" />
+                    <span>Clear All</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -167,7 +175,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-90 shadow-md p-2 z-10 flex justify-center items-center">
+      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-90 shadow-md p-2 z-20 flex justify-center items-center">
         <span className="text-sm text-gray-600">© 2025 Low Code CTO</span>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Edit, X, Save, Plus, Minus, DropletIcon, Trash2, Link, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Edit, X, Save, Plus, Minus, DropletIcon, Trash2, Link, AlignLeft, AlignCenter, AlignRight, Copy } from 'lucide-react';
 import { NodeData } from '../types';
 
 // Add this type definition at the top of the file
@@ -12,6 +12,7 @@ interface NodeDetailsPanelProps {
   onClose: () => void;
   onDelete?: () => void;
   onAddConnection?: () => void;
+  onClone?: (node: NodeData) => void;
 }
 
 const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({ 
@@ -20,7 +21,8 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
   onUpdate, 
   onClose,
   onDelete,
-  onAddConnection
+  onAddConnection,
+  onClone
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -224,6 +226,12 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
     e.stopPropagation();
   };
 
+  const handleClone = () => {
+    if (node && onClone) {
+      onClone(node);
+    }
+  };
+
   if (!node) {
     return null;
   }
@@ -235,14 +243,25 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
       ref={panelRef}
     >
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Element Details</h2>
-        <button 
-          onClick={onClose}
-          className="p-1 rounded-full hover:bg-gray-100"
-          title="Close Panel"
-        >
-          <X size={20} />
-        </button>
+        <h2 className="text-xl font-bold">
+          {node?.type === 'logo' ? 'Stack Element Details' : 'Note Details'}
+        </h2>
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={handleClone}
+            className="p-1 rounded-full hover:bg-gray-100"
+            title="Clone Element"
+          >
+            <Copy size={20} />
+          </button>
+          <button 
+            onClick={onClose}
+            className="p-1 rounded-full hover:bg-gray-100"
+            title="Close Panel"
+          >
+            <X size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Add Connection button */}

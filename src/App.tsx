@@ -28,6 +28,7 @@ import {
   setSelectedConnectionId,
   clearAll
 } from './store/diagramSlice';
+import LoadingSpinner from './components/LoadingSpinner';
 
 // Local storage key
 const STORAGE_KEY = 'stack-diagram-data';
@@ -64,6 +65,7 @@ function App() {
     height: 120
   });
   const [backgroundColor, setBackgroundColor] = useState('#f8fafc');
+  const [isLoading, setIsLoading] = useState(true);
   
   const stageRef = useRef<any>(null);
 
@@ -499,6 +501,20 @@ function App() {
   
   // Get the selected connection
   const selectedConnection = selectedConnectionId ? connections.find(conn => conn.id === selectedConnectionId) : null;
+
+  // Add this effect to simulate loading time or use it with actual data loading
+  useEffect(() => {
+    // Simulate loading time or replace with actual data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">

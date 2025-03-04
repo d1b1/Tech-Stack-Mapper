@@ -396,7 +396,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[200px]"
               placeholder="Enter note content"
               style={{
-                fontSize: `${fontSize}px`,
+                fontSize: '16px',
                 color: fontColor,
                 backgroundColor: backgroundColor
               }}
@@ -463,7 +463,7 @@ const NodeDetailsPanel: React.FC<NodeDetailsPanelProps> = ({
                   id="font-size"
                   type="range"
                   min="10"
-                  max="24"
+                  max="80"
                   step="1"
                   value={fontSize}
                   onChange={handleFontSizeChange}

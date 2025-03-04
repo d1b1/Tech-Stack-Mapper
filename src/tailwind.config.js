@@ -6,6 +6,9 @@ export default {
       width: {
         '3/10': '30%',
         '7/10': '70%',
+      },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
       }
     },
   },

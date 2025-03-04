@@ -574,7 +574,7 @@ function App() {
         selectedNodeId={selectedNodeId}
       />
       
-      <div className="pt-16 flex flex-1">
+      <div className="pt-16 pb-12 flex flex-1">
         <div className="w-full">
           <Canvas
             nodes={nodes}
